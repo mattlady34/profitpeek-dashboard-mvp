@@ -1,0 +1,43 @@
+{
+  "name": "profitpeek-dashboard",
+  "version": "1.0.0",
+  "description": "Real-time profit dashboard for Shopify merchants",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "cd apps/api && npm run dev",
+    "dev:web": "cd apps/web && npm run dev",
+    "build": "npm run build:shared && npm run build:api && npm run build:web",
+    "build:shared": "cd packages/shared && npm run build",
+    "build:api": "cd apps/api && npm run build",
+    "build:web": "cd apps/web && npm run build",
+    "test": "npm run test:shared && npm run test:api && npm run test:web",
+    "test:shared": "cd packages/shared && npm test",
+    "test:api": "cd apps/api && npm test",
+    "test:web": "cd apps/web && npm test",
+    "lint": "npm run lint:shared && npm run lint:api && npm run lint:web",
+    "lint:shared": "cd packages/shared && npm run lint",
+    "lint:api": "cd apps/api && npm run lint",
+    "lint:web": "cd apps/web && npm run lint",
+    "type-check": "npm run type-check:shared && npm run type-check:api && npm run type-check:web",
+    "type-check:shared": "cd packages/shared && npm run type-check",
+    "type-check:api": "cd apps/api && npm run type-check",
+    "type-check:web": "cd apps/web && npm run type-check"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
