@@ -76,6 +76,22 @@ export default function Dashboard() {
               financial_status: 'paid',
               created_at: new Date(Date.now() - 172800000).toISOString(),
               customer: { first_name: 'Bob', last_name: 'Johnson' }
+            },
+            {
+              id: 1004,
+              name: '#1004',
+              total_price: '425.00',
+              financial_status: 'paid',
+              created_at: new Date(Date.now() - 259200000).toISOString(),
+              customer: { first_name: 'Sarah', last_name: 'Wilson' }
+            },
+            {
+              id: 1005,
+              name: '#1005',
+              total_price: '199.99',
+              financial_status: 'partially_paid',
+              created_at: new Date(Date.now() - 345600000).toISOString(),
+              customer: { first_name: 'Mike', last_name: 'Brown' }
             }
           ],
           last_updated: new Date().toISOString()
@@ -92,8 +108,8 @@ export default function Dashboard() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading ProfitPeek Dashboard...</p>
+          <div className="loading-spinner mx-auto"></div>
+          <p className="mt-4 text-gray-600 text-lg">Loading ProfitPeek Dashboard...</p>
         </div>
       </div>
     );
@@ -101,98 +117,100 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">ProfitPeek Dashboard</h1>
-          <p className="text-gray-600">Real-time profit tracking for {dashboardData?.shop}</p>
-          <p className="text-sm text-gray-500">Last updated: {dashboardData?.last_updated}</p>
-          {error && (
-            <div className="mt-2 p-3 bg-yellow-100 border border-yellow-400 rounded text-yellow-700">
-              <strong>Note:</strong> Using demo data. Backend API connection will be available soon.
+      {/* Header */}
+      <div className="header-gradient">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">📊 ProfitPeek Dashboard</h1>
+              <p className="text-xl opacity-90">Real-time profit tracking for {dashboardData?.shop}</p>
+              <p className="text-sm opacity-75 mt-1">Last updated: {new Date(dashboardData?.last_updated || '').toLocaleString()}</p>
             </div>
-          )}
+            <div className="text-right">
+              <div className="inline-flex items-center px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium">
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                Live Data
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Alert for demo data */}
+        {error && (
+          <div className="alert alert-warning">
+            <strong>🎯 Demo Mode:</strong> Using sample data. Connect your Shopify store for live data.
+          </div>
+        )}
 
         {/* Revenue Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Total Revenue</h3>
-            <p className="text-3xl font-bold text-green-600">
-              ${dashboardData?.metrics.total_revenue.toLocaleString()}
-            </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          <div className="metric-card gradient-success">
+            <h3>💰 Total Revenue</h3>
+            <p>${dashboardData?.metrics.total_revenue.toLocaleString()}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Total Orders</h3>
-            <p className="text-3xl font-bold text-blue-600">
-              {dashboardData?.metrics.total_orders}
-            </p>
+          <div className="metric-card gradient-bg">
+            <h3>📦 Total Orders</h3>
+            <p>{dashboardData?.metrics.total_orders}</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Average Order Value</h3>
-            <p className="text-3xl font-bold text-purple-600">
-              ${dashboardData?.metrics.average_order_value.toFixed(2)}
-            </p>
+          <div className="metric-card gradient-warning">
+            <h3>📈 Average Order Value</h3>
+            <p>${dashboardData?.metrics.average_order_value.toFixed(2)}</p>
           </div>
         </div>
 
         {/* Orders by Status */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Orders by Status</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="card p-8 mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center">
+            <span className="text-4xl mr-3">📊</span>
+            Orders by Status
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {dashboardData?.metrics.orders_by_status && Object.entries(dashboardData.metrics.orders_by_status).map(([status, count]) => (
-              <div key={status} className="text-center p-4 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-medium text-gray-900 capitalize">{status}</h3>
-                <p className="text-2xl font-bold text-blue-600">{count}</p>
+              <div key={status} className="text-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 hover:border-blue-300 transition-all duration-300">
+                <h3 className="text-lg font-semibold text-gray-700 capitalize mb-2">{status.replace('_', ' ')}</h3>
+                <p className="text-4xl font-bold text-blue-600">{count}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Recent Orders */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Orders</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+        <div className="card p-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center">
+            <span className="text-4xl mr-3">🛍️</span>
+            Recent Orders
+          </h2>
+          <div className="data-table">
+            <table className="min-w-full">
+              <thead>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Order
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
+                  <th>Order</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {dashboardData?.recent_orders.map((order) => (
-                  <tr key={order.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="font-semibold text-gray-900">
                       {order.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="text-gray-700">
                       {order.customer?.first_name} {order.customer?.last_name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="font-semibold text-gray-900">
                       ${parseFloat(order.total_price).toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        order.financial_status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {order.financial_status}
+                    <td>
+                      <span className={`status-badge status-${order.financial_status}`}>
+                        {order.financial_status.replace('_', ' ')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="text-gray-600">
                       {new Date(order.created_at).toLocaleDateString()}
                     </td>
                   </tr>
@@ -203,16 +221,16 @@ export default function Dashboard() {
         </div>
 
         {/* Navigation */}
-        <div className="mt-8 text-center">
+        <div className="mt-12 text-center space-x-4">
           <a 
             href="/"
-            className="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 mr-4"
+            className="btn btn-secondary"
           >
             ← Back to Home
           </a>
           <a 
             href="/profit-analysis"
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+            className="btn btn-primary"
           >
             View Detailed Profit Analysis →
           </a>

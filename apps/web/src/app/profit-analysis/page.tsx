@@ -97,6 +97,30 @@ export default function ProfitAnalysis() {
               net_profit: 41.09,
               margin: 45.7,
               created_at: new Date(Date.now() - 172800000).toISOString()
+            },
+            {
+              order_id: 1004,
+              order_name: '#1004',
+              subtotal: 425.00,
+              cogs: 170.00,
+              processing_fee: 12.63,
+              shipping_cost: 10.00,
+              ad_spend: 0,
+              net_profit: 232.37,
+              margin: 54.7,
+              created_at: new Date(Date.now() - 259200000).toISOString()
+            },
+            {
+              order_id: 1005,
+              order_name: '#1005',
+              subtotal: 199.99,
+              cogs: 79.99,
+              processing_fee: 6.10,
+              shipping_cost: 10.00,
+              ad_spend: 0,
+              net_profit: 103.90,
+              margin: 52.0,
+              created_at: new Date(Date.now() - 345600000).toISOString()
             }
           ],
           last_updated: new Date().toISOString()
@@ -113,8 +137,8 @@ export default function ProfitAnalysis() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading Profit Analysis...</p>
+          <div className="loading-spinner mx-auto"></div>
+          <p className="mt-4 text-gray-600 text-lg">Loading Profit Analysis...</p>
         </div>
       </div>
     );
@@ -122,114 +146,110 @@ export default function ProfitAnalysis() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Profit Analysis</h1>
-          <p className="text-gray-600">Detailed profit breakdown for {profitData?.shop}</p>
-          <p className="text-sm text-gray-500">Last updated: {profitData?.last_updated}</p>
-          {error && (
-            <div className="mt-2 p-3 bg-yellow-100 border border-yellow-400 rounded text-yellow-700">
-              <strong>Note:</strong> Using demo data. Backend API connection will be available soon.
+      {/* Header */}
+      <div className="header-gradient">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">💰 Profit Analysis</h1>
+              <p className="text-xl opacity-90">Detailed profit breakdown for {profitData?.shop}</p>
+              <p className="text-sm opacity-75 mt-1">Last updated: {new Date(profitData?.last_updated || '').toLocaleString()}</p>
             </div>
-          )}
+            <div className="text-right">
+              <div className="inline-flex items-center px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium">
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                Live Analysis
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Alert for demo data */}
+        {error && (
+          <div className="alert alert-warning">
+            <strong>🎯 Demo Mode:</strong> Using sample data. Connect your Shopify store for live analysis.
+          </div>
+        )}
 
         {/* Overall Metrics */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Overall Profit Metrics</h2>
+        <div className="card p-8 mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center">
+            <span className="text-4xl mr-3">📊</span>
+            Overall Profit Metrics
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Total Revenue</h3>
-              <p className="text-3xl font-bold text-green-600">
-                ${profitData?.overall_metrics.total_revenue.toLocaleString()}
-              </p>
+            <div className="metric-card gradient-success">
+              <h3>💰 Total Revenue</h3>
+              <p>${profitData?.overall_metrics.total_revenue.toLocaleString()}</p>
             </div>
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">COGS (40%)</h3>
-              <p className="text-3xl font-bold text-orange-600">
-                ${profitData?.overall_metrics.total_cogs.toLocaleString()}
-              </p>
+            <div className="metric-card gradient-danger">
+              <h3>📦 COGS (40%)</h3>
+              <p>${profitData?.overall_metrics.total_cogs.toLocaleString()}</p>
             </div>
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Processing Fees</h3>
-              <p className="text-3xl font-bold text-red-600">
-                ${profitData?.overall_metrics.total_fees.toLocaleString()}
-              </p>
+            <div className="metric-card gradient-warning">
+              <h3>💳 Processing Fees</h3>
+              <p>${profitData?.overall_metrics.total_fees.toLocaleString()}</p>
             </div>
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Net Profit</h3>
-              <p className="text-3xl font-bold text-blue-600">
-                ${profitData?.overall_metrics.total_net_profit.toLocaleString()}
-              </p>
+            <div className="metric-card gradient-bg">
+              <h3>🎯 Net Profit</h3>
+              <p>${profitData?.overall_metrics.total_net_profit.toLocaleString()}</p>
             </div>
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Profit Margin</h3>
-              <p className="text-3xl font-bold text-purple-600">
-                {profitData?.overall_metrics.overall_margin.toFixed(1)}%
-              </p>
+            <div className="metric-card gradient-card">
+              <h3>📈 Profit Margin</h3>
+              <p>{profitData?.overall_metrics.overall_margin.toFixed(1)}%</p>
             </div>
           </div>
         </div>
 
         {/* Order Breakdown */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Order-by-Order Profit Breakdown</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+        <div className="card p-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center">
+            <span className="text-4xl mr-3">🛍️</span>
+            Order-by-Order Profit Breakdown
+          </h2>
+          <div className="data-table">
+            <table className="min-w-full">
+              <thead>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Order
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Subtotal
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    COGS
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Fees
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Net Profit
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Margin
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
+                  <th>Order</th>
+                  <th>Subtotal</th>
+                  <th>COGS</th>
+                  <th>Fees</th>
+                  <th>Net Profit</th>
+                  <th>Margin</th>
+                  <th>Date</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {profitData?.order_breakdown.map((order) => (
-                  <tr key={order.order_id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tr key={order.order_id} className="hover:bg-gray-50 transition-colors">
+                    <td className="font-semibold text-gray-900">
                       {order.order_name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="font-semibold text-gray-900">
                       ${order.subtotal.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600">
+                    <td className="text-orange-600 font-medium">
                       ${order.cogs.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                    <td className="text-red-600 font-medium">
                       ${order.processing_fee.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium">
+                    <td className="text-blue-600 font-bold text-lg">
                       ${order.net_profit.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        order.margin >= 50 ? 'bg-green-100 text-green-800' :
-                        order.margin >= 30 ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
+                    <td>
+                      <span className={`status-badge ${
+                        order.margin >= 50 ? 'margin-high' :
+                        order.margin >= 30 ? 'margin-medium' :
+                        'margin-low'
                       }`}>
                         {order.margin.toFixed(1)}%
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="text-gray-600">
                       {new Date(order.created_at).toLocaleDateString()}
                     </td>
                   </tr>
@@ -240,18 +260,18 @@ export default function ProfitAnalysis() {
         </div>
 
         {/* Navigation */}
-        <div className="mt-8 text-center">
+        <div className="mt-12 text-center space-x-4">
           <a 
             href="/dashboard"
-            className="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 mr-4"
+            className="btn btn-secondary"
           >
             ← Back to Dashboard
           </a>
           <a 
             href="/"
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+            className="btn btn-success"
           >
-            Home
+            🏠 Home
           </a>
         </div>
       </div>
