@@ -1,7 +1,7 @@
 {
   "/_not-found": "app/_not-found.js",
-  "/daily-digest/page": "app/daily-digest/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/page": "app/page.js",
+  "/daily-digest/page": "app/daily-digest/page.js",
   "/profit-analysis/page": "app/profit-analysis/page.js"
 }
