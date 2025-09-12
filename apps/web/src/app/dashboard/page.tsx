@@ -1,178 +1,190 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { DashboardLayout } from '@/components/layout/dashboard-layout';
-import { KPICard } from '@/components/dashboard/kpi-card';
-import { OrdersTable } from '@/components/dashboard/orders-table';
-import { DataHealthPanel } from '@/components/dashboard/data-health-panel';
-import { PeriodSelector } from '@/components/dashboard/period-selector';
-import { useDashboardData } from '@/hooks/use-dashboard-data';
-import { useAuth } from '@/hooks/use-auth';
-import { 
-  CurrencyDollarIcon, 
-  ShoppingCartIcon, 
-  TrendingUpIcon,
-  ExclamationTriangleIcon
-} from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react'
 
-export default function DashboardPage() {
-  const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const [selectedPeriod, setSelectedPeriod] = useState('today');
-  const { data: dashboardData, isLoading, error } = useDashboardData(selectedPeriod);
+interface DashboardData {
+  shop: string
+  metrics: {
+    total_revenue: number
+    total_orders: number
+    average_order_value: number
+    orders_by_status: Record<string, number>
+  }
+  recent_orders: Array<{
+    id: number
+    name: string
+    total_price: number
+    created_at: string
+    financial_status: string
+  }>
+  last_updated: string
+}
+
+export default function Dashboard() {
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/');
+    const urlParams = new URLSearchParams(window.location.search)
+    const shop = urlParams.get('shop')
+    
+    if (!shop) {
+      setError('No shop parameter found. Please connect your store first.')
+      setLoading(false)
+      return
     }
-  }, [isAuthenticated, authLoading, router]);
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
-      </div>
-    );
+    fetchDashboardData(shop)
+  }, [])
+
+  const fetchDashboardData = async (shop: string) => {
+    try {
+      const response = await fetch(`https://profitpeek-dashboard.onrender.com/api/dashboard?shop=${shop}`)
+      const result = await response.json()
+      
+      if (response.ok) {
+        setData(result)
+      } else {
+        setError(result.error || 'Failed to fetch dashboard data')
+      }
+    } catch (err) {
+      setError('Network error. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  if (!isAuthenticated) {
-    return null;
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount)
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  if (loading) {
+    return (
+      <div className="container" style={{ paddingTop: '2rem' }}>
+        <div className="loading">Loading dashboard...</div>
+      </div>
+    )
   }
 
   if (error) {
     return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <ExclamationTriangleIcon className="h-12 w-12 text-danger-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Error loading dashboard</h3>
-            <p className="text-gray-500">{error.message}</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
+      <div className="container" style={{ paddingTop: '2rem' }}>
+        <div className="error">{error}</div>
+        <a href="/" className="btn">Back to Home</a>
+      </div>
+    )
+  }
+
+  if (!data) {
+    return (
+      <div className="container" style={{ paddingTop: '2rem' }}>
+        <div className="error">No data available</div>
+        <a href="/" className="btn">Back to Home</a>
+      </div>
+    )
   }
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600">Real-time profit insights for your store</p>
-          </div>
-          <PeriodSelector 
-            value={selectedPeriod} 
-            onChange={setSelectedPeriod}
-            disabled={isLoading}
-          />
+    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+            ProfitPeek Dashboard
+          </h1>
+          <p style={{ color: '#6b7280' }}>{data.shop}</p>
         </div>
+        <a href="/" className="btn btn-secondary">Back to Home</a>
+      </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <KPICard
-            title="Net Profit"
-            value={dashboardData?.net_profit || 0}
-            currency={dashboardData?.currency || 'USD'}
-            icon={CurrencyDollarIcon}
-            trend={dashboardData?.flags?.fees_estimated ? 'warning' : 'success'}
-            subtitle={dashboardData?.flags?.fees_estimated ? 'Some fees estimated' : 'All fees actual'}
-            loading={isLoading}
-          />
-          <KPICard
-            title="Net Revenue"
-            value={dashboardData?.net_revenue || 0}
-            currency={dashboardData?.currency || 'USD'}
-            icon={TrendingUpIcon}
-            loading={isLoading}
-          />
-          <KPICard
-            title="Orders"
-            value={dashboardData?.orders_count || 0}
-            icon={ShoppingCartIcon}
-            loading={isLoading}
-          />
-          <KPICard
-            title="AOV"
-            value={dashboardData?.aov || 0}
-            currency={dashboardData?.currency || 'USD'}
-            icon={CurrencyDollarIcon}
-            loading={isLoading}
-          />
+      {/* Metrics Grid */}
+      <div className="grid grid-4" style={{ marginBottom: '2rem' }}>
+        <div className="card metric">
+          <div className="metric-value">{formatCurrency(data.metrics.total_revenue)}</div>
+          <div className="metric-label">Total Revenue</div>
         </div>
-
-        {/* Profit Breakdown */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="card">
-            <div className="card-header">
-              <h3 className="text-lg font-medium text-gray-900">Profit Breakdown</h3>
-            </div>
-            <div className="card-body">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Net Revenue</span>
-                  <span className="font-medium">
-                    {dashboardData?.currency} {dashboardData?.net_revenue?.toFixed(2) || '0.00'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-danger-600">
-                  <span className="text-gray-600">COGS</span>
-                  <span className="font-medium">
-                    -{dashboardData?.currency} {dashboardData?.cogs?.toFixed(2) || '0.00'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-danger-600">
-                  <span className="text-gray-600">Fees</span>
-                  <span className="font-medium">
-                    -{dashboardData?.currency} {dashboardData?.fees?.toFixed(2) || '0.00'}
-                    {dashboardData?.flags?.fees_estimated && (
-                      <span className="text-xs text-warning-600 ml-1">(est.)</span>
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-danger-600">
-                  <span className="text-gray-600">Shipping</span>
-                  <span className="font-medium">
-                    -{dashboardData?.currency} {dashboardData?.shipping_cost?.toFixed(2) || '0.00'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-danger-600">
-                  <span className="text-gray-600">Ad Spend</span>
-                  <span className="font-medium">
-                    -{dashboardData?.currency} {dashboardData?.ad_spend?.toFixed(2) || '0.00'}
-                  </span>
-                </div>
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-lg font-medium text-gray-900">Net Profit</span>
-                    <span className="text-lg font-bold text-success-600">
-                      {dashboardData?.currency} {dashboardData?.net_profit?.toFixed(2) || '0.00'}
-                    </span>
-                  </div>
-                  <div className="text-right text-sm text-gray-500">
-                    {dashboardData?.margin_pct?.toFixed(1) || '0.0'}% margin
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Data Health Panel */}
-          <DataHealthPanel />
+        <div className="card metric">
+          <div className="metric-value">{data.metrics.total_orders}</div>
+          <div className="metric-label">Total Orders</div>
         </div>
-
-        {/* Recent Orders */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="text-lg font-medium text-gray-900">Recent Orders</h3>
-          </div>
-          <div className="card-body p-0">
-            <OrdersTable period={selectedPeriod} />
-          </div>
+        <div className="card metric">
+          <div className="metric-value">{formatCurrency(data.metrics.average_order_value)}</div>
+          <div className="metric-label">Average Order Value</div>
+        </div>
+        <div className="card metric">
+          <div className="metric-value">{Object.keys(data.metrics.orders_by_status).length}</div>
+          <div className="metric-label">Order Statuses</div>
         </div>
       </div>
-    </DashboardLayout>
-  );
+
+      {/* Orders by Status */}
+      <div className="card" style={{ marginBottom: '2rem' }}>
+        <h3 style={{ marginBottom: '1rem' }}>Orders by Status</h3>
+        <div className="grid grid-2">
+          {Object.entries(data.metrics.orders_by_status).map(([status, count]) => (
+            <div key={status} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0' }}>
+              <span className={`status status-${status.toLowerCase()}`}>
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </span>
+              <span style={{ fontWeight: '600' }}>{count}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Orders */}
+      <div className="card">
+        <h3 style={{ marginBottom: '1rem' }}>Recent Orders</h3>
+        {data.recent_orders.length > 0 ? (
+          <div className="table-container" style={{ overflowX: 'auto' }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.recent_orders.map((order) => (
+                  <tr key={order.id}>
+                    <td style={{ fontWeight: '600' }}>{order.name}</td>
+                    <td>{formatDate(order.created_at)}</td>
+                    <td>{formatCurrency(order.total_price)}</td>
+                    <td>
+                      <span className={`status status-${order.financial_status.toLowerCase()}`}>
+                        {order.financial_status.charAt(0).toUpperCase() + order.financial_status.slice(1)}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p style={{ color: '#6b7280', textAlign: 'center', padding: '2rem' }}>
+            No recent orders found
+          </p>
+        )}
+      </div>
+
+      <div style={{ textAlign: 'center', marginTop: '2rem', color: '#6b7280', fontSize: '0.875rem' }}>
+        Last updated: {formatDate(data.last_updated)}
+      </div>
+    </div>
+  )
 }
