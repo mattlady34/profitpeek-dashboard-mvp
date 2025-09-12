@@ -529,3 +529,7 @@ def send_daily_digest():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+
+@app.route('/test')
+def test_endpoint():
+    return jsonify({"message": "Test endpoint working"})
