@@ -20,7 +20,14 @@
       "static/chunks/1dd3208c-6bb47e228d6f86b7.js",
       "static/chunks/16-f249165ea0c328e5.js",
       "static/chunks/main-app-efa35bd0e902ed50.js",
-      "static/chunks/app/dashboard/page-6a0a55d0acb01ca1.js"
+      "static/chunks/app/dashboard/page-c60f863191068c1f.js"
+    ],
+    "/profit-analysis/page": [
+      "static/chunks/webpack-1435c1c6c01b780e.js",
+      "static/chunks/1dd3208c-6bb47e228d6f86b7.js",
+      "static/chunks/16-f249165ea0c328e5.js",
+      "static/chunks/main-app-efa35bd0e902ed50.js",
+      "static/chunks/app/profit-analysis/page-7802a207fbaeb53a.js"
     ],
     "/page": [
       "static/chunks/webpack-1435c1c6c01b780e.js",

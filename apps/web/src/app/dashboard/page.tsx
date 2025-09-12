@@ -108,6 +108,7 @@ export default function Dashboard() {
           <p style={{ color: '#6b7280' }}>{data.shop}</p>
         </div>
         <a href="/" className="btn btn-secondary">Back to Home</a>
+        <a href={`/profit-analysis?shop=${data.shop}`} className="btn" style={{ marginLeft: "1rem" }}>Profit Analysis</a>
       </div>
 
       {/* Metrics Grid */}
