@@ -257,3 +257,4 @@ def get_dashboard_data():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
+# Force redeploy Fri Sep 12 06:19:32 PDT 2025
