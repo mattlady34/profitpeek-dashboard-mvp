@@ -1,75 +1,49 @@
-"""Main FastAPI application."""
+from flask import Flask, jsonify, request, redirect
+import os
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+app = Flask(__name__)
 
-from .config.settings import get_settings
-from .db.database import init_db, close_db
-from .routes import auth, webhooks, dashboard, backfill
+# Shopify OAuth
+SHOPIFY_API_KEY = os.getenv('SHOPIFY_API_KEY', 'your_api_key')
+SHOPIFY_API_SECRET = os.getenv('SHOPIFY_API_SECRET', 'your_api_secret')
+SHOPIFY_REDIRECT_URI = os.getenv('SHOPIFY_REDIRECT_URI', 'https://profitpeek-dashboard.onrender.com/auth/callback')
 
-settings = get_settings()
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan manager."""
-    # Startup
-    await init_db()
-    yield
-    # Shutdown
-    await close_db()
-
-
-# Create FastAPI app
-app = FastAPI(
-    title=settings.app_name,
-    version=settings.app_version,
-    description="Real-time profit dashboard for Shopify merchants",
-    lifespan=lifespan
-)
-
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Include routers
-app.include_router(auth.router)
-app.include_router(webhooks.router)
-app.include_router(dashboard.router)
-app.include_router(backfill.router)
-
-
-@app.get("/")
-async def root():
-    """Root endpoint."""
-    return {
+@app.route('/')
+def home():
+    return jsonify({
         "message": "ProfitPeek API",
-        "version": settings.app_version,
+        "version": "1.0.0",
         "status": "healthy"
-    }
+    })
 
+@app.route('/health')
+def health():
+    return jsonify({"status": "healthy"})
 
-@app.get("/health")
-async def health_check():
-    """Health check endpoint."""
-    return {
-        "status": "healthy",
-        "version": settings.app_version,
-        "timestamp": "2024-01-01T00:00:00Z"  # This would be dynamic
-    }
+@app.route('/auth/start')
+def auth_start():
+    shop = request.args.get('shop')
+    if not shop:
+        return jsonify({"error": "Shop parameter required"}), 400
+    
+    # Generate Shopify OAuth URL
+    auth_url = f"https://{shop}/admin/oauth/authorize?client_id={SHOPIFY_API_KEY}&scope=read_orders,read_products&redirect_uri={SHOPIFY_REDIRECT_URI}"
+    return redirect(auth_url)
 
+@app.route('/auth/callback')
+def auth_callback():
+    code = request.args.get('code')
+    shop = request.args.get('shop')
+    
+    if not code or not shop:
+        return jsonify({"error": "Missing code or shop parameter"}), 400
+    
+    # For now, just return success
+    return jsonify({
+        "message": "OAuth successful",
+        "shop": shop,
+        "code": code
+    })
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host=settings.api_host,
-        port=settings.api_port,
-        reload=settings.debug
-    )
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
