@@ -15,6 +15,21 @@
       "static/css/ad43b638a8262755.css",
       "static/chunks/app/layout-844e85e2d403ac3e.js"
     ],
+    "/page": [
+      "static/chunks/webpack-1435c1c6c01b780e.js",
+      "static/chunks/1dd3208c-6bb47e228d6f86b7.js",
+      "static/chunks/16-f249165ea0c328e5.js",
+      "static/chunks/main-app-efa35bd0e902ed50.js",
+      "static/chunks/40-b3b51a555b87b205.js",
+      "static/chunks/app/page-5b923d3d90ad18cc.js"
+    ],
+    "/daily-digest/page": [
+      "static/chunks/webpack-1435c1c6c01b780e.js",
+      "static/chunks/1dd3208c-6bb47e228d6f86b7.js",
+      "static/chunks/16-f249165ea0c328e5.js",
+      "static/chunks/main-app-efa35bd0e902ed50.js",
+      "static/chunks/app/daily-digest/page-c8bc2c214460bcbc.js"
+    ],
     "/dashboard/page": [
       "static/chunks/webpack-1435c1c6c01b780e.js",
       "static/chunks/1dd3208c-6bb47e228d6f86b7.js",
@@ -28,13 +43,6 @@
       "static/chunks/16-f249165ea0c328e5.js",
       "static/chunks/main-app-efa35bd0e902ed50.js",
       "static/chunks/app/profit-analysis/page-6b7250f7e69ac5b5.js"
-    ],
-    "/page": [
-      "static/chunks/webpack-1435c1c6c01b780e.js",
-      "static/chunks/1dd3208c-6bb47e228d6f86b7.js",
-      "static/chunks/16-f249165ea0c328e5.js",
-      "static/chunks/main-app-efa35bd0e902ed50.js",
-      "static/chunks/app/page-e2a394f0d6ddc373.js"
     ]
   }
 }
