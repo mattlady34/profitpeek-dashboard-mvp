@@ -524,10 +524,7 @@ def send_daily_digest():
     return jsonify({
         "message": "Daily digest generated successfully",
         "digest": digest_data,
-        "note": "Email/Slack integration needed for actual sending""
-    })
-
-# Force redeploy Fri Sep 12 06:50:11 PDT 2025
+        "note": "Email/Slack integration needed for actual sending"
     })
 
 if __name__ == '__main__':
