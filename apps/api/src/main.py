@@ -527,3 +527,4 @@ def send_daily_digest():
         "note": "Email/Slack integration needed for actual sending"
     })
 
+# Force redeploy Fri Sep 12 06:50:11 PDT 2025
