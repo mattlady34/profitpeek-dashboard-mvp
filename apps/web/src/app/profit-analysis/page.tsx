@@ -1,244 +1,224 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
 interface ProfitData {
-  shop: string
-  summary: {
-    total_revenue: number
-    total_cogs: number
-    total_processing_fees: number
-    total_shipping: number
-    total_tax: number
-    net_profit: number
-    profit_margin: number
-    total_orders: number
-  }
-  profit_breakdown: Array<{
-    order_id: number
-    order_name: string
-    revenue: number
-    cogs: number
-    processing_fee: number
-    shipping: number
-    tax: number
-    net_profit: number
-    profit_margin: number
-    created_at: string
-  }>
-  last_updated: string
+  message: string;
+  shop: string;
+  overall_metrics: {
+    total_revenue: number;
+    total_cogs: number;
+    total_fees: number;
+    total_net_profit: number;
+    overall_margin: number;
+  };
+  order_breakdown: Array<{
+    order_id: number;
+    order_name: string;
+    subtotal: number;
+    cogs: number;
+    processing_fee: number;
+    shipping_cost: number;
+    ad_spend: number;
+    net_profit: number;
+    margin: number;
+    created_at: string;
+  }>;
+  last_updated: string;
 }
 
 export default function ProfitAnalysis() {
-  const [data, setData] = useState<ProfitData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [profitData, setProfitData] = useState<ProfitData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const shop = 'profitpeekteststore.myshopify.com';
+  const apiBase = 'https://profitpeek-dashboard.onrender.com';
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const shop = urlParams.get('shop')
-    
-    if (!shop) {
-      setError('No shop parameter found. Please connect your store first.')
-      setLoading(false)
-      return
-    }
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        const response = await fetch(`${apiBase}/api/profit-analysis?shop=${shop}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch profit data');
+        }
+        const data = await response.json();
+        setProfitData(data);
 
-    fetchProfitData(shop)
-  }, [])
-
-  const fetchProfitData = async (shop: string) => {
-    try {
-      const response = await fetch(`https://profitpeek-dashboard.onrender.com/api/profit-analysis?shop=${shop}`)
-      const result = await response.json()
-      
-      if (response.ok) {
-        setData(result)
-      } else {
-        setError(result.error || 'Failed to fetch profit data')
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError('Network error. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
+    };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount)
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+    fetchData();
+  }, []);
 
   if (loading) {
     return (
-      <div className="container" style={{ paddingTop: '2rem' }}>
-        <div className="loading">Loading profit analysis...</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading Profit Analysis...</p>
+        </div>
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
-      <div className="container" style={{ paddingTop: '2rem' }}>
-        <div className="error">{error}</div>
-        <a href="/" className="btn">Back to Home</a>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 text-6xl mb-4">⚠️</div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Profit Analysis</h1>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <p className="text-sm text-gray-500">
+            Make sure you've completed OAuth authentication first.
+          </p>
+          <a 
+            href={`${apiBase}/auth/start?shop=${shop}`}
+            className="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          >
+            Authenticate with Shopify
+          </a>
+        </div>
       </div>
-    )
-  }
-
-  if (!data) {
-    return (
-      <div className="container" style={{ paddingTop: '2rem' }}>
-        <div className="error">No profit data available</div>
-        <a href="/" className="btn">Back to Home</a>
-      </div>
-    )
+    );
   }
 
   return (
-    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-            Profit Analysis
-          </h1>
-          <p style={{ color: '#6b7280' }}>{data.shop}</p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Profit Analysis</h1>
+          <p className="text-gray-600">Detailed profit breakdown for {profitData?.shop}</p>
+          <p className="text-sm text-gray-500">Last updated: {profitData?.last_updated}</p>
         </div>
-        <div>
-          <a href={`/dashboard?shop=${data.shop}`} className="btn btn-secondary" style={{ marginRight: '1rem' }}>Dashboard</a>
-          <a href="/" className="btn btn-secondary">Back to Home</a>
-        </div>
-      </div>
 
-      {/* Profit Summary */}
-      <div className="grid grid-4" style={{ marginBottom: '2rem' }}>
-        <div className="card metric">
-          <div className="metric-value" style={{ color: '#059669' }}>{formatCurrency(data.summary.net_profit)}</div>
-          <div className="metric-label">Net Profit</div>
-        </div>
-        <div className="card metric">
-          <div className="metric-value" style={{ color: '#dc2626' }}>{formatCurrency(data.summary.total_cogs)}</div>
-          <div className="metric-label">Total COGS</div>
-        </div>
-        <div className="card metric">
-          <div className="metric-value" style={{ color: '#7c3aed' }}>{formatCurrency(data.summary.total_processing_fees)}</div>
-          <div className="metric-label">Processing Fees</div>
-        </div>
-        <div className="card metric">
-          <div className="metric-value" style={{ color: '#ea580c' }}>{data.summary.profit_margin.toFixed(1)}%</div>
-          <div className="metric-label">Profit Margin</div>
-        </div>
-      </div>
-
-      {/* Detailed Breakdown */}
-      <div className="grid grid-2" style={{ marginBottom: '2rem' }}>
-        <div className="card">
-          <h3 style={{ marginBottom: '1rem' }}>Revenue Breakdown</h3>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid #e5e7eb' }}>
-            <span>Total Revenue</span>
-            <span style={{ fontWeight: '600' }}>{formatCurrency(data.summary.total_revenue)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid #e5e7eb' }}>
-            <span>COGS (40%)</span>
-            <span style={{ color: '#dc2626' }}>-{formatCurrency(data.summary.total_cogs)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid #e5e7eb' }}>
-            <span>Processing Fees</span>
-            <span style={{ color: '#7c3aed' }}>-{formatCurrency(data.summary.total_processing_fees)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid #e5e7eb' }}>
-            <span>Shipping</span>
-            <span style={{ color: '#ea580c' }}>-{formatCurrency(data.summary.total_shipping)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid #e5e7eb' }}>
-            <span>Tax</span>
-            <span style={{ color: '#6b7280' }}>-{formatCurrency(data.summary.total_tax)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', fontWeight: 'bold', fontSize: '1.1rem', borderTop: '2px solid #059669' }}>
-            <span>Net Profit</span>
-            <span style={{ color: '#059669' }}>{formatCurrency(data.summary.net_profit)}</span>
+        {/* Overall Metrics */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Overall Profit Metrics</h2>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Total Revenue</h3>
+              <p className="text-3xl font-bold text-green-600">
+                ${profitData?.overall_metrics.total_revenue.toLocaleString()}
+              </p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">COGS (40%)</h3>
+              <p className="text-3xl font-bold text-orange-600">
+                ${profitData?.overall_metrics.total_cogs.toLocaleString()}
+              </p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Processing Fees</h3>
+              <p className="text-3xl font-bold text-red-600">
+                ${profitData?.overall_metrics.total_fees.toLocaleString()}
+              </p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Net Profit</h3>
+              <p className="text-3xl font-bold text-blue-600">
+                ${profitData?.overall_metrics.total_net_profit.toLocaleString()}
+              </p>
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Profit Margin</h3>
+              <p className="text-3xl font-bold text-purple-600">
+                {profitData?.overall_metrics.overall_margin.toFixed(1)}%
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="card">
-          <h3 style={{ marginBottom: '1rem' }}>Key Metrics</h3>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0' }}>
-            <span>Total Orders</span>
-            <span style={{ fontWeight: '600' }}>{data.summary.total_orders}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0' }}>
-            <span>Average Order Value</span>
-            <span style={{ fontWeight: '600' }}>{formatCurrency(data.summary.total_revenue / data.summary.total_orders)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0' }}>
-            <span>Profit per Order</span>
-            <span style={{ fontWeight: '600', color: '#059669' }}>{formatCurrency(data.summary.net_profit / data.summary.total_orders)}</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0' }}>
-            <span>COGS Percentage</span>
-            <span style={{ fontWeight: '600', color: '#dc2626' }}>{((data.summary.total_cogs / data.summary.total_revenue) * 100).toFixed(1)}%</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Order Profit Breakdown */}
-      <div className="card">
-        <h3 style={{ marginBottom: '1rem' }}>Order Profit Breakdown</h3>
-        {data.profit_breakdown.length > 0 ? (
-          <div className="table-container" style={{ overflowX: 'auto' }}>
-            <table className="table">
-              <thead>
+        {/* Order Breakdown */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Order-by-Order Profit Breakdown</h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th>Order</th>
-                  <th>Revenue</th>
-                  <th>COGS</th>
-                  <th>Fees</th>
-                  <th>Profit</th>
-                  <th>Margin</th>
-                  <th>Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Order
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Subtotal
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    COGS
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fees
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Net Profit
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Margin
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
                 </tr>
               </thead>
-              <tbody>
-                {data.profit_breakdown.map((order) => (
+              <tbody className="bg-white divide-y divide-gray-200">
+                {profitData?.order_breakdown.map((order) => (
                   <tr key={order.order_id}>
-                    <td style={{ fontWeight: '600' }}>{order.order_name}</td>
-                    <td>{formatCurrency(order.revenue)}</td>
-                    <td style={{ color: '#dc2626' }}>-{formatCurrency(order.cogs)}</td>
-                    <td style={{ color: '#7c3aed' }}>-{formatCurrency(order.processing_fee)}</td>
-                    <td style={{ color: order.net_profit >= 0 ? '#059669' : '#dc2626', fontWeight: '600' }}>
-                      {formatCurrency(order.net_profit)}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {order.order_name}
                     </td>
-                    <td style={{ color: order.profit_margin >= 0 ? '#059669' : '#dc2626' }}>
-                      {order.profit_margin.toFixed(1)}%
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      ${order.subtotal.toFixed(2)}
                     </td>
-                    <td>{formatDate(order.created_at)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-orange-600">
+                      ${order.cogs.toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-red-600">
+                      ${order.processing_fee.toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600 font-medium">
+                      ${order.net_profit.toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        order.margin >= 50 ? 'bg-green-100 text-green-800' :
+                        order.margin >= 30 ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {order.margin.toFixed(1)}%
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {new Date(order.created_at).toLocaleDateString()}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        ) : (
-          <p style={{ color: '#6b7280', textAlign: 'center', padding: '2rem' }}>
-            No profit data available
-          </p>
-        )}
-      </div>
+        </div>
 
-      <div style={{ textAlign: 'center', marginTop: '2rem', color: '#6b7280', fontSize: '0.875rem' }}>
-        Last updated: {formatDate(data.last_updated)}
+        {/* Navigation */}
+        <div className="mt-8 text-center">
+          <a 
+            href="/dashboard"
+            className="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 mr-4"
+          >
+            ← Back to Dashboard
+          </a>
+          <a 
+            href="/"
+            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+          >
+            Home
+          </a>
+        </div>
       </div>
     </div>
-  )
+  );
 }
