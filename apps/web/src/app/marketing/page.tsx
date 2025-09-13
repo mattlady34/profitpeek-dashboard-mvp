@@ -17,9 +17,11 @@ import {
   Divider,
 } from '@shopify/polaris';
 import { trackDemoModeStarted, trackEvent } from '../../utils/analytics';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function MarketingPage() {
   const [email, setEmail] = useState('');
+  const { login } = useAuth();
 
   const handleDemoClick = () => {
     trackDemoModeStarted();
@@ -28,7 +30,11 @@ export default function MarketingPage() {
 
   const handleGetStarted = () => {
     trackEvent('get_started_clicked', { source: 'marketing_page' });
-    window.location.href = '/';
+    // This will trigger the OAuth flow
+    const shop = prompt('Enter your Shopify store domain (e.g., your-store):');
+    if (shop) {
+      login(shop);
+    }
   };
 
   const handleEmailSubmit = () => {
