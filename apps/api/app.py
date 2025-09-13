@@ -182,12 +182,15 @@ def get_shopify_headers():
 def api_dashboard():
     """Get dashboard data from Shopify"""
     try:
-        shop = session.get('shop')
-        if not shop:
+        # Check for demo mode from URL parameter
+        is_demo = request.args.get('demo') == '1'
+        shop = session.get('shop') or 'demo-store.myshopify.com'
+        
+        if not is_demo and not shop:
             return jsonify({"error": "Not authenticated"}), 401
         
         # Check if we're in demo mode
-        is_demo = session.get('access_token') == 'demo_access_token'
+        is_demo = is_demo or session.get('access_token') == 'demo_access_token'
         
         if is_demo:
             # Return demo data
