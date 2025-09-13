@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { trackPageView } from './utils/analytics';
+import { trackPageView } from '../utils/analytics';
 
 export default function Home() {
   useEffect(() => {
