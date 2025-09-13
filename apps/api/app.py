@@ -381,5 +381,78 @@ def api_orders():
     except Exception as e:
         return jsonify({"error": f"Orders API error: {str(e)}"}), 500
 
+# Shopify Compliance Webhooks (Required for App Store)
+@app.route('/webhooks/customers/data_request', methods=['POST'])
+def webhook_customers_data_request():
+    """Handle customer data request webhook"""
+    # Verify webhook authenticity
+    hmac_header = request.headers.get('X-Shopify-Hmac-Sha256')
+    if not hmac_header:
+        return jsonify({"error": "Missing HMAC header"}), 400
+    
+    # Verify HMAC
+    data = request.get_data()
+    if not verify_shopify_hmac(data.decode('utf-8'), hmac_header):
+        return jsonify({"error": "Invalid HMAC"}), 401
+    
+    # Process customer data request
+    webhook_data = request.get_json()
+    customer_id = webhook_data.get('customer', {}).get('id')
+    shop_domain = webhook_data.get('shop_domain')
+    
+    # Log the request (in production, you'd store this in a database)
+    print(f"Customer data request for customer {customer_id} from shop {shop_domain}")
+    
+    # Return 200 to acknowledge receipt
+    return jsonify({"status": "received"}), 200
+
+@app.route('/webhooks/customers/redact', methods=['POST'])
+def webhook_customers_redact():
+    """Handle customer data erasure webhook"""
+    # Verify webhook authenticity
+    hmac_header = request.headers.get('X-Shopify-Hmac-Sha256')
+    if not hmac_header:
+        return jsonify({"error": "Missing HMAC header"}), 400
+    
+    # Verify HMAC
+    data = request.get_data()
+    if not verify_shopify_hmac(data.decode('utf-8'), hmac_header):
+        return jsonify({"error": "Invalid HMAC"}), 401
+    
+    # Process customer data erasure
+    webhook_data = request.get_json()
+    customer_id = webhook_data.get('customer', {}).get('id')
+    shop_domain = webhook_data.get('shop_domain')
+    
+    # Log the request (in production, you'd delete customer data)
+    print(f"Customer data erasure for customer {customer_id} from shop {shop_domain}")
+    
+    # Return 200 to acknowledge receipt
+    return jsonify({"status": "received"}), 200
+
+@app.route('/webhooks/shop/redact', methods=['POST'])
+def webhook_shop_redact():
+    """Handle shop data erasure webhook"""
+    # Verify webhook authenticity
+    hmac_header = request.headers.get('X-Shopify-Hmac-Sha256')
+    if not hmac_header:
+        return jsonify({"error": "Missing HMAC header"}), 400
+    
+    # Verify HMAC
+    data = request.get_data()
+    if not verify_shopify_hmac(data.decode('utf-8'), hmac_header):
+        return jsonify({"error": "Invalid HMAC"}), 401
+    
+    # Process shop data erasure
+    webhook_data = request.get_json()
+    shop_domain = webhook_data.get('shop_domain')
+    shop_id = webhook_data.get('shop_id')
+    
+    # Log the request (in production, you'd delete shop data)
+    print(f"Shop data erasure for shop {shop_domain} (ID: {shop_id})")
+    
+    # Return 200 to acknowledge receipt
+    return jsonify({"status": "received"}), 200
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
