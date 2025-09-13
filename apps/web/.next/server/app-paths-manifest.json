@@ -3,5 +3,6 @@
   "/dashboard/page": "app/dashboard/page.js",
   "/profit-analysis/page": "app/profit-analysis/page.js",
   "/backfill/page": "app/backfill/page.js",
-  "/health/page": "app/health/page.js"
+  "/health/page": "app/health/page.js",
+  "/not-found": "app/not-found.js"
 }

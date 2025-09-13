@@ -21,6 +21,7 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { AuthGuard } from '../../components/AuthGuard';
 import { useAuth } from '../../contexts/AuthContext';
+import { trackDashboardViewed, trackPageView } from '../../utils/analytics';
 
 interface DashboardData {
   storeName: string;
@@ -63,6 +64,10 @@ function DashboardContent() {
   const periods = ['Today', 'Yesterday', '7d', 'MTD'];
 
   useEffect(() => {
+    // Track page view
+    trackPageView('dashboard');
+    trackDashboardViewed();
+    
     const urlParams = new URLSearchParams(window.location.search);
     const demo = urlParams.get('demo') === '1';
     setDemoMode(demo);

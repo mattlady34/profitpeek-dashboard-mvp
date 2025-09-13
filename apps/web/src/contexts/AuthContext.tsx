@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { trackStoreConnected, trackDemoModeStarted, identifyUser } from '../utils/analytics';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -39,6 +40,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setShop(shop);
       setAccessToken('demo_access_token'); // Demo mode
       setLoading(false);
+      
+      // Track authentication
+      if (demo === '1') {
+        trackDemoModeStarted();
+      } else {
+        trackStoreConnected(shop);
+        identifyUser(shop, { shop: shop, authenticated_at: new Date().toISOString() });
+      }
       
       // Clean up URL parameters
       const newUrl = new URL(window.location.href);
