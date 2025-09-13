@@ -1,6 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import {
+  Page,
+  Layout,
+  Card,
+  BlockStack,
+  Text,
+  InlineStack,
+  SkeletonDisplayText,
+  SkeletonBodyText,
+  Banner,
+  Button,
+} from '@shopify/polaris';
+import Link from 'next/link';
 
 interface DigestData {
   message: string;
@@ -47,119 +60,138 @@ export default function DailyDigest() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading Daily Digest...</p>
-        </div>
-      </div>
+      <Page title="Daily Digest">
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <div role="status" aria-live="polite" aria-label="Loading daily digest data">
+                <BlockStack gap="400">
+                  <SkeletonDisplayText size="large" />
+                  <SkeletonBodyText lines={3} />
+                </BlockStack>
+              </div>
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </Page>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Daily Digest</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <p className="text-sm text-gray-500">
-            Make sure you've completed OAuth authentication first.
-          </p>
-          <a 
-            href={`${apiBase}/auth/start?shop=${shop}`}
-            className="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-          >
-            Authenticate with Shopify
-          </a>
-        </div>
-      </div>
+      <Page title="Daily Digest">
+        <Layout>
+          <Layout.Section>
+            <Banner tone="critical" title="Error Loading Daily Digest">
+              <p>{error}</p>
+              <p>Make sure you've completed OAuth authentication first.</p>
+              <Button variant="primary" url={`${apiBase}/auth/start?shop=${shop}`}>
+                Authenticate with Shopify
+              </Button>
+            </Banner>
+          </Layout.Section>
+        </Layout>
+      </Page>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Daily Digest</h1>
-          <p className="text-gray-600">Yesterday's performance summary for {digestData?.shop}</p>
-          <p className="text-sm text-gray-500">Date: {digestData?.digest.date}</p>
-        </div>
-
-        {/* Digest Card */}
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Yesterday's Performance</h2>
-            <p className="text-gray-600">Here's how your store performed yesterday</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="text-center p-6 bg-green-50 rounded-lg">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Revenue</h3>
-              <p className="text-3xl font-bold text-green-600">
-                ${digestData?.digest.revenue.toLocaleString()}
-              </p>
-            </div>
-            <div className="text-center p-6 bg-blue-50 rounded-lg">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Orders</h3>
-              <p className="text-3xl font-bold text-blue-600">
-                {digestData?.digest.orders}
-              </p>
-            </div>
-            <div className="text-center p-6 bg-purple-50 rounded-lg">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Profit</h3>
-              <p className="text-3xl font-bold text-purple-600">
-                ${digestData?.digest.profit.toLocaleString()}
-              </p>
-            </div>
-            <div className="text-center p-6 bg-orange-50 rounded-lg">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Margin</h3>
-              <p className="text-3xl font-bold text-orange-600">
-                {digestData?.digest.margin.toFixed(1)}%
-              </p>
-            </div>
-          </div>
-        </div>
+    <Page
+      title="Daily Digest"
+      subtitle={`Yesterday's performance summary for ${digestData?.shop}`}
+    >
+      <Layout>
+        {/* Digest Metrics */}
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="400">
+              <Text as="h2" variant="headingMd" alignment="center">
+                Yesterday's Performance
+              </Text>
+              <Text as="p" variant="bodyMd" tone="subdued" alignment="center">
+                Here's how your store performed yesterday
+              </Text>
+              
+              <InlineStack gap="400" wrap={false}>
+                <Card>
+                  <BlockStack gap="300" align="center">
+                    <Text as="p" variant="bodyMd" tone="subdued">Revenue</Text>
+                    <Text as="h2" variant="heading2xl" tone="success">
+                      ${digestData?.digest.revenue.toLocaleString()}
+                    </Text>
+                  </BlockStack>
+                </Card>
+                
+                <Card>
+                  <BlockStack gap="300" align="center">
+                    <Text as="p" variant="bodyMd" tone="subdued">Orders</Text>
+                    <Text as="h2" variant="heading2xl">
+                      {digestData?.digest.orders}
+                    </Text>
+                  </BlockStack>
+                </Card>
+                
+                <Card>
+                  <BlockStack gap="300" align="center">
+                    <Text as="p" variant="bodyMd" tone="subdued">Profit</Text>
+                    <Text as="h2" variant="heading2xl" tone="success">
+                      ${digestData?.digest.profit.toLocaleString()}
+                    </Text>
+                  </BlockStack>
+                </Card>
+                
+                <Card>
+                  <BlockStack gap="300" align="center">
+                    <Text as="p" variant="bodyMd" tone="subdued">Margin</Text>
+                    <Text as="h2" variant="heading2xl">
+                      {digestData?.digest.margin.toFixed(1)}%
+                    </Text>
+                  </BlockStack>
+                </Card>
+              </InlineStack>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
 
         {/* Summary */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Summary</h3>
-          <div className="prose max-w-none">
-            <p className="text-gray-700">
-              Yesterday, your store generated <strong>${digestData?.digest.revenue.toLocaleString()}</strong> in revenue 
-              from <strong>{digestData?.digest.orders}</strong> orders, resulting in a net profit of 
-              <strong> ${digestData?.digest.profit.toLocaleString()}</strong> with a 
-              <strong> {digestData?.digest.margin.toFixed(1)}%</strong> profit margin.
-            </p>
-            <p className="text-gray-600 text-sm mt-4">
-              {digestData?.note}
-            </p>
-          </div>
-        </div>
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="400">
+              <Text as="h3" variant="headingMd">Summary</Text>
+              <Text as="p" variant="bodyMd">
+                Yesterday, your store generated <strong>${digestData?.digest.revenue.toLocaleString()}</strong> in revenue 
+                from <strong>{digestData?.digest.orders}</strong> orders, resulting in a net profit of 
+                <strong> ${digestData?.digest.profit.toLocaleString()}</strong> with a 
+                <strong> {digestData?.digest.margin.toFixed(1)}%</strong> profit margin.
+              </Text>
+              <Text as="p" variant="bodySm" tone="subdued">
+                {digestData?.note}
+              </Text>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
 
         {/* Navigation */}
-        <div className="text-center">
-          <a 
-            href="/dashboard"
-            className="inline-block bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 mr-4"
-          >
-            ← Back to Dashboard
-          </a>
-          <a 
-            href="/profit-analysis"
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 mr-4"
-          >
-            View Profit Analysis
-          </a>
-          <a 
-            href="/"
-            className="inline-block bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
-          >
-            Home
-          </a>
-        </div>
-      </div>
-    </div>
+        <Layout.Section>
+          <InlineStack gap="200">
+            <Link href="/dashboard">
+              <Button variant="secondary">
+                ← Back to Dashboard
+              </Button>
+            </Link>
+            <Link href="/profit-analysis">
+              <Button variant="primary">
+                View Profit Analysis
+              </Button>
+            </Link>
+            <Link href="/">
+              <Button variant="primary">
+                Home
+              </Button>
+            </Link>
+          </InlineStack>
+        </Layout.Section>
+      </Layout>
+    </Page>
   );
 }

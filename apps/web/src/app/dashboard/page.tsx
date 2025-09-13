@@ -1,100 +1,150 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import {
+  Page,
+  Layout,
+  Card,
+  BlockStack,
+  InlineStack,
+  Text,
+  Badge,
+  Button,
+  Banner,
+  SkeletonDisplayText,
+  SkeletonBodyText,
+  Tooltip,
+  Icon,
+  Box,
+  ProgressBar,
+} from '@shopify/polaris';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
+import { AuthGuard } from '../../components/AuthGuard';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface DashboardData {
-  message: string;
-  shop: string;
-  metrics: {
-    total_revenue: number;
-    total_orders: number;
-    average_order_value: number;
-    orders_by_status: Record<string, number>;
+  storeName: string;
+  lastUpdated: string;
+  period: string;
+  stats: {
+    netProfit: number;
+    netRevenue: number;
+    orders: number;
+    aov: number;
+    margin: number;
   };
-  recent_orders: any[];
-  last_updated: string;
+  trends: {
+    netProfit: Array<{ date: string; value: number }>;
+    netRevenue: Array<{ date: string; value: number }>;
+  };
+  whatMoved: Array<{
+    type: 'sku' | 'fee' | 'refund';
+    title: string;
+    impact: string;
+    change: number;
+    icon: string;
+  }>;
+  dataHealth: {
+    hasIssues: boolean;
+    message: string;
+    action: string;
+    percentage: number;
+  };
 }
 
-export default function Dashboard() {
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+function DashboardContent() {
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState('Today');
+  const [demoMode, setDemoMode] = useState(false);
+  const { isAuthenticated, shop } = useAuth();
 
-  const shop = 'profitpeekteststore.myshopify.com';
-  const apiBase = 'https://profitpeek-dashboard.onrender.com';
+  const periods = ['Today', 'Yesterday', '7d', 'MTD'];
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const demo = urlParams.get('demo') === '1';
+    setDemoMode(demo);
+
     const fetchData = async () => {
       try {
         setLoading(true);
+        setError(null);
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
         
-        // Try to fetch from backend API
-        const response = await fetch(`${apiBase}/api/dashboard?shop=${shop}`);
+        // Use real API if authenticated, otherwise use demo
+        const endpoint = isAuthenticated ? '/api/dashboard' : '/api/dashboard?demo=1';
+        const response = await fetch(`${apiUrl}${endpoint}`, {
+          credentials: 'include', // Include cookies for session
+        });
+        
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data');
         }
-        const data = await response.json();
-        setDashboardData(data);
-
+        
+        const result = await response.json();
+        setData(result);
       } catch (err) {
-        console.log('Backend not available, using mock data');
-        // Use mock data if backend is not available
-        setDashboardData({
-          message: "Dashboard data (Mock)",
-          shop: shop,
-          metrics: {
-            total_revenue: 12500.50,
-            total_orders: 45,
-            average_order_value: 277.79,
-            orders_by_status: {
-              'paid': 38,
-              'pending': 5,
-              'partially_paid': 2
-            }
+        console.error('Dashboard fetch error:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error occurred');
+        // Use demo data matching the wireframe
+        setData({
+          storeName: 'ProfitPeek',
+          lastUpdated: 'Updated just now',
+          period: selectedPeriod,
+          stats: {
+            netProfit: 12847,
+            netRevenue: 42156,
+            orders: 287,
+            aov: 146.87,
+            margin: 30.5,
           },
-          recent_orders: [
+          trends: {
+            netProfit: [
+              { date: '2025-09-08', value: 4500 },
+              { date: '2025-09-09', value: 5200 },
+              { date: '2025-09-10', value: 4800 },
+              { date: '2025-09-11', value: 6800 },
+              { date: '2025-09-12', value: 7137 },
+            ],
+            netRevenue: [
+              { date: '2025-09-08', value: 8500 },
+              { date: '2025-09-09', value: 9200 },
+              { date: '2025-09-10', value: 7800 },
+              { date: '2025-09-11', value: 10500 },
+              { date: '2025-09-12', value: 12500 },
+            ],
+          },
+          whatMoved: [
             {
-              id: 1001,
-              name: '#1001',
-              total_price: '299.99',
-              financial_status: 'paid',
-              created_at: new Date().toISOString(),
-              customer: { first_name: 'John', last_name: 'Doe' }
+              type: 'sku',
+              title: 'Top SKU: Premium T-Shirt',
+              impact: '+$4,230',
+              change: 15.2,
+              icon: 'products',
             },
             {
-              id: 1002,
-              name: '#1002',
-              total_price: '149.50',
-              financial_status: 'pending',
-              created_at: new Date(Date.now() - 86400000).toISOString(),
-              customer: { first_name: 'Jane', last_name: 'Smith' }
+              type: 'fee',
+              title: 'Processing Fees',
+              impact: '-$1,247',
+              change: -2.1,
+              icon: 'creditCard',
             },
             {
-              id: 1003,
-              name: '#1003',
-              total_price: '89.99',
-              financial_status: 'paid',
-              created_at: new Date(Date.now() - 172800000).toISOString(),
-              customer: { first_name: 'Bob', last_name: 'Johnson' }
+              type: 'refund',
+              title: 'Refunds Impact',
+              impact: '-$892',
+              change: -4.5,
+              icon: 'refresh',
             },
-            {
-              id: 1004,
-              name: '#1004',
-              total_price: '425.00',
-              financial_status: 'paid',
-              created_at: new Date(Date.now() - 259200000).toISOString(),
-              customer: { first_name: 'Sarah', last_name: 'Wilson' }
-            },
-            {
-              id: 1005,
-              name: '#1005',
-              total_price: '199.99',
-              financial_status: 'partially_paid',
-              created_at: new Date(Date.now() - 345600000).toISOString(),
-              customer: { first_name: 'Mike', last_name: 'Brown' }
-            }
           ],
-          last_updated: new Date().toISOString()
+          dataHealth: {
+            hasIssues: true,
+            message: '18% of SKUs missing cost data',
+            action: 'Fix now',
+            percentage: 18,
+          },
         });
       } finally {
         setLoading(false);
@@ -102,140 +152,304 @@ export default function Dashboard() {
     };
 
     fetchData();
-  }, []);
+  }, [selectedPeriod, isAuthenticated]);
+
+  const StatTile = ({ 
+    title, 
+    value, 
+    change, 
+    tooltip, 
+    isEstimated = false 
+  }: { 
+    title: string; 
+    value: string; 
+    change: string; 
+    tooltip: string;
+    isEstimated?: boolean;
+  }) => (
+    <Card>
+      <BlockStack gap="300">
+        <InlineStack align="space-between">
+          <Text as="p" variant="bodyMd" tone="subdued">
+            {title}
+          </Text>
+          <Tooltip content={tooltip}>
+            <Button
+              variant="plain"
+              size="micro"
+              icon="info"
+              accessibilityLabel={`More information about ${title}: ${tooltip}`}
+              aria-describedby={`${title.toLowerCase().replace(/\s+/g, '-')}-tooltip`}
+            />
+          </Tooltip>
+        </InlineStack>
+        <Text as="h2" variant="heading2xl">
+          {value}
+        </Text>
+        <InlineStack gap="200" align="start">
+          <Icon source={change.startsWith('+') ? 'arrowUp' : 'arrowDown'} />
+          <Text as="p" variant="bodySm" tone={change.startsWith('+') ? 'success' : 'critical'}>
+            {change}
+          </Text>
+        </InlineStack>
+        {isEstimated && (
+          <Badge tone="info" size="small">
+            Fee estimated
+          </Badge>
+        )}
+      </BlockStack>
+    </Card>
+  );
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="loading-spinner mx-auto"></div>
-          <p className="mt-4 text-gray-600 text-lg">Loading ProfitPeek Dashboard...</p>
-        </div>
-      </div>
+      <Page title="Dashboard">
+        <Layout>
+          <Layout.Section>
+            <Card>
+              <div role="status" aria-live="polite" aria-label="Loading dashboard data">
+                <BlockStack gap="400">
+                  <SkeletonDisplayText size="large" />
+                  <SkeletonBodyText lines={3} />
+                </BlockStack>
+              </div>
+            </Card>
+          </Layout.Section>
+        </Layout>
+      </Page>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="header-gradient">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">📊 ProfitPeek Dashboard</h1>
-              <p className="text-xl opacity-90">Real-time profit tracking for {dashboardData?.shop}</p>
-              <p className="text-sm opacity-75 mt-1">Last updated: {new Date(dashboardData?.last_updated || '').toLocaleString()}</p>
-            </div>
-            <div className="text-right">
-              <div className="inline-flex items-center px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium">
-                <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                Live Data
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Alert for demo data */}
+    <Page
+      title={data?.storeName || 'Dashboard'}
+      subtitle={data?.lastUpdated}
+    >
+      <Layout>
+        {/* Error Banner */}
         {error && (
-          <div className="alert alert-warning">
-            <strong>🎯 Demo Mode:</strong> Using sample data. Connect your Shopify store for live data.
-          </div>
+          <Layout.Section>
+            <Banner tone="critical" title="API Error">
+              <p>Failed to load data: {error}. Displaying demo data as a fallback.</p>
+            </Banner>
+          </Layout.Section>
         )}
 
-        {/* Revenue Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-          <div className="metric-card gradient-success">
-            <h3>💰 Total Revenue</h3>
-            <p>${dashboardData?.metrics.total_revenue.toLocaleString()}</p>
-          </div>
-          <div className="metric-card gradient-bg">
-            <h3>📦 Total Orders</h3>
-            <p>{dashboardData?.metrics.total_orders}</p>
-          </div>
-          <div className="metric-card gradient-warning">
-            <h3>📈 Average Order Value</h3>
-            <p>${dashboardData?.metrics.average_order_value.toFixed(2)}</p>
-          </div>
-        </div>
+        {/* Period Toggle */}
+        <Layout.Section>
+          <Card>
+            <InlineStack gap="200" align="end">
+              {periods.map((period) => (
+                <Button
+                  key={period}
+                  variant={selectedPeriod === period ? 'primary' : 'tertiary'}
+                  onClick={() => setSelectedPeriod(period)}
+                >
+                  {period}
+                </Button>
+              ))}
+              <Button icon="settings" variant="tertiary" />
+            </InlineStack>
+          </Card>
+        </Layout.Section>
 
-        {/* Orders by Status */}
-        <div className="card p-8 mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center">
-            <span className="text-4xl mr-3">📊</span>
-            Orders by Status
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {dashboardData?.metrics.orders_by_status && Object.entries(dashboardData.metrics.orders_by_status).map(([status, count]) => (
-              <div key={status} className="text-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border-2 border-gray-200 hover:border-blue-300 transition-all duration-300">
-                <h3 className="text-lg font-semibold text-gray-700 capitalize mb-2">{status.replace('_', ' ')}</h3>
-                <p className="text-4xl font-bold text-blue-600">{count}</p>
+        {/* Stat Tiles */}
+        <Layout.Section>
+          <InlineStack gap="400" wrap={false}>
+            <Box minWidth="200px">
+              <StatTile
+                title="Net Profit"
+                value={`$${data?.stats.netProfit.toLocaleString()}`}
+                change="+8.2%"
+                tooltip="Revenue minus COGS, fees, and shipping costs"
+              />
+            </Box>
+            <Box minWidth="200px">
+              <StatTile
+                title="Net Revenue"
+                value={`$${data?.stats.netRevenue.toLocaleString()}`}
+                change="+5.4%"
+                tooltip="Total revenue from orders"
+              />
+            </Box>
+            <Box minWidth="200px">
+              <StatTile
+                title="Orders"
+                value={data?.stats.orders.toString() || '0'}
+                change="-2.1%"
+                tooltip="Total number of orders"
+              />
+            </Box>
+            <Box minWidth="200px">
+              <StatTile
+                title="AOV"
+                value={`$${data?.stats.aov.toFixed(2)}`}
+                change="+12.3%"
+                tooltip="Average order value"
+              />
+            </Box>
+            <Box minWidth="200px">
+              <StatTile
+                title="Margin %"
+                value={`${data?.stats.margin.toFixed(1)}%`}
+                change="+1.8%"
+                tooltip="Net profit margin percentage"
+                isEstimated={true}
+              />
+            </Box>
+          </InlineStack>
+        </Layout.Section>
+
+        {/* Trend Chart */}
+        <Layout.Section>
+          <Card>
+            <BlockStack gap="400">
+              <InlineStack align="space-between">
+                <Text as="h3" variant="headingMd">
+                  30-Day Trend
+                </Text>
+                <InlineStack gap="200">
+                  <InlineStack gap="100">
+                    <div style={{ width: '8px', height: '8px', backgroundColor: '#0070f3', borderRadius: '50%' }} />
+                    <Text as="p" variant="bodySm" tone="subdued">Net Profit</Text>
+                  </InlineStack>
+                  <InlineStack gap="100">
+                    <div style={{ width: '8px', height: '8px', backgroundColor: '#6b7280', borderRadius: '50%' }} />
+                    <Text as="p" variant="bodySm" tone="subdued">Net Revenue</Text>
+                  </InlineStack>
+                </InlineStack>
+              </InlineStack>
+              <div style={{ height: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={data?.trends.netProfit || []}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                    />
+                    <RechartsTooltip 
+                      formatter={(value: number) => [`$${value.toLocaleString()}`, 'Net Profit']}
+                      labelFormatter={(label) => new Date(label).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke="#008060" 
+                      strokeWidth={2} 
+                      name="Net Profit"
+                      dot={{ fill: '#008060', strokeWidth: 2, r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-            ))}
-          </div>
-        </div>
+            </BlockStack>
+          </Card>
+        </Layout.Section>
 
-        {/* Recent Orders */}
-        <div className="card p-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center">
-            <span className="text-4xl mr-3">🛍️</span>
-            Recent Orders
-          </h2>
-          <div className="data-table">
-            <table className="min-w-full">
-              <thead>
-                <tr>
-                  <th>Order</th>
-                  <th>Customer</th>
-                  <th>Total</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {dashboardData?.recent_orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="font-semibold text-gray-900">
-                      {order.name}
-                    </td>
-                    <td className="text-gray-700">
-                      {order.customer?.first_name} {order.customer?.last_name}
-                    </td>
-                    <td className="font-semibold text-gray-900">
-                      ${parseFloat(order.total_price).toFixed(2)}
-                    </td>
-                    <td>
-                      <span className={`status-badge status-${order.financial_status}`}>
-                        {order.financial_status.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td className="text-gray-600">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        {/* What Moved Today & Data Health */}
+        <Layout.Section>
+          <InlineStack gap="400" wrap={false}>
+            {/* What Moved Today */}
+            <Box minWidth="400px">
+              <Card>
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    What Moved Today
+                  </Text>
+                  <BlockStack gap="300">
+                    {data?.whatMoved.map((item, index) => (
+                      <InlineStack key={index} align="space-between">
+                        <InlineStack gap="200">
+                          <Icon source={item.icon} />
+                          <BlockStack gap="100">
+                            <Text as="p" variant="bodyMd">{item.title}</Text>
+                            <Text as="p" variant="bodySm" tone="subdued">
+                              {item.type === 'sku' ? '187 units sold' : 
+                               item.type === 'fee' ? 'Higher volume today' : 
+                               '12 refunds processed'}
+                            </Text>
+                          </BlockStack>
+                        </InlineStack>
+                        <Text as="p" variant="bodyMd" tone={item.change > 0 ? 'success' : 'critical'}>
+                          {item.impact}
+                        </Text>
+                      </InlineStack>
+                    ))}
+                  </BlockStack>
+                </BlockStack>
+              </Card>
+            </Box>
 
-        {/* Navigation */}
-        <div className="mt-12 text-center space-x-4">
-          <a 
-            href="/"
-            className="btn btn-secondary"
-          >
-            ← Back to Home
-          </a>
-          <a 
-            href="/profit-analysis"
-            className="btn btn-primary"
-          >
-            View Detailed Profit Analysis →
-          </a>
-        </div>
-      </div>
-    </div>
+            {/* Data Health */}
+            <Box minWidth="400px">
+              <Card>
+                <BlockStack gap="400">
+                  <Text as="h3" variant="headingMd">
+                    Data Health
+                  </Text>
+                  <BlockStack gap="300">
+                    <BlockStack gap="200">
+                      <InlineStack align="space-between">
+                        <InlineStack gap="200">
+                          <Icon source="alert" />
+                          <Text as="p" variant="bodyMd">{data?.dataHealth.message}</Text>
+                        </InlineStack>
+                        <Button size="slim">{data?.dataHealth.action}</Button>
+                      </InlineStack>
+                      <ProgressBar progress={data?.dataHealth.percentage || 0} />
+                    </BlockStack>
+                    
+                    <InlineStack align="space-between">
+                      <InlineStack gap="200">
+                        <Icon source="checkmark" />
+                        <Text as="p" variant="bodyMd">All systems operational</Text>
+                      </InlineStack>
+                      <Badge tone="success">Live</Badge>
+                    </InlineStack>
+                    
+                    <InlineStack align="space-between">
+                      <InlineStack gap="200">
+                        <Icon source="info" />
+                        <Text as="p" variant="bodyMd">23 orders using estimated fees</Text>
+                      </InlineStack>
+                      <Text as="p" variant="bodySm" tone="subdued">Using presets</Text>
+                    </InlineStack>
+                  </BlockStack>
+                </BlockStack>
+              </Card>
+            </Box>
+          </InlineStack>
+        </Layout.Section>
+
+        {/* Demo Mode Indicator */}
+        {demoMode && (
+          <Layout.Section>
+            <Banner
+              title="Demo Mode"
+              tone="info"
+            >
+              <p>You're viewing demo data. Add ?demo=1 to the URL to enable demo mode.</p>
+            </Banner>
+          </Layout.Section>
+        )}
+      </Layout>
+    </Page>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <AuthGuard>
+      <DashboardContent />
+    </AuthGuard>
   );
 }
