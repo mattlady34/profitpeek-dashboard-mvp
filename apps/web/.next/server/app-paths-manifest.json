@@ -1,9 +1,6 @@
 {
   "/page": "app/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/orders/page": "app/orders/page.js",
-  "/daily-digest/page": "app/daily-digest/page.js",
-  "/settings/page": "app/settings/page.js",
   "/profit-analysis/page": "app/profit-analysis/page.js",
   "/backfill/page": "app/backfill/page.js",
   "/health/page": "app/health/page.js"
