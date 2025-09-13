@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd apps/web && npm run build",
+  "outputDirectory": "apps/web/.next",
+  "framework": "nextjs",
+  "installCommand": "cd apps/web && npm install",
+  "devCommand": "cd apps/web && npm run dev",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@next_public_api_url"
+  }
+}
