@@ -17,9 +17,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
             <Card>
               <div style={{ textAlign: 'center', padding: '2rem' }}>
                 <Spinner size="large" />
-                <Text as="p" variant="bodyMd" tone="subdued" style={{ marginTop: '1rem' }}>
-                  Checking authentication...
-                </Text>
+                <div style={{ marginTop: '1rem' }}>
+                  <Text as="p" variant="bodyMd" tone="subdued">
+                    Checking authentication...
+                  </Text>
+                </div>
               </div>
             </Card>
           </Layout.Section>
