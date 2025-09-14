@@ -67,11 +67,11 @@ export default function MarketingPage() {
               <Badge tone="success" size="large">
                 🚀 Enterprise-Grade Profit Tracking
               </Badge>
-              <Text as="h1" variant="heading2xl" color="base">
+              <Text as="h1" variant="heading2xl">
                 Track Your True Profit Margins Across All Platforms
               </Text>
               <div style={{ margin: '2rem 0', maxWidth: '800px', marginLeft: 'auto', marginRight: 'auto' }}>
-                <Text as="p" variant="headingMd" color="base">
+                <Text as="p" variant="headingMd">
                   The only profit tracking platform that connects Shopify, Meta Ads, Google Ads, 
                   Klaviyo, and Postscript - with real-time analytics, AI insights, and enterprise security.
                 </Text>
@@ -85,7 +85,7 @@ export default function MarketingPage() {
                 </Button>
               </InlineStack>
               <div style={{ marginTop: '2rem' }}>
-                <Text as="p" variant="bodySm" color="base">
+                <Text as="p" variant="bodySm">
                   ⚡ No credit card required • 14-day free trial • Enterprise security
                 </Text>
               </div>
@@ -395,9 +395,11 @@ export default function MarketingPage() {
                 borderRadius: '8px',
                 position: 'relative'
               }}>
-                <Badge tone="success" size="large" style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)' }}>
-                  Most Popular
-                </Badge>
+                <div style={{ marginBottom: '1rem' }}>
+                  <Badge tone="success" size="large">
+                    Most Popular
+                  </Badge>
+                </div>
                 <Text as="h3" variant="headingMd">Professional</Text>
                 <div style={{ margin: '1rem 0' }}>
                   <Text as="p" variant="heading2xl">$79</Text>
@@ -506,16 +508,15 @@ export default function MarketingPage() {
               }
             ].map((faq, index) => (
               <Card key={index}>
-                <Button
-                  variant="plain"
+                <div
                   onClick={() => toggleFaq(index)}
-                  style={{ width: '100%', textAlign: 'left', padding: '1rem' }}
+                  style={{ width: '100%', textAlign: 'left', padding: '1rem', cursor: 'pointer' }}
                 >
                   <InlineStack align="space-between">
                     <Text as="h3" variant="headingMd">{faq.question}</Text>
                     <Icon source={expandedFaq === index ? "chevronUp" : "chevronDown"} />
                   </InlineStack>
-                </Button>
+                </div>
                 <Collapsible
                   open={expandedFaq === index}
                   id={`faq-${index}`}
@@ -542,11 +543,11 @@ export default function MarketingPage() {
               color: 'white',
               borderRadius: '12px'
             }}>
-              <Text as="h2" variant="headingLg" color="base">
+              <Text as="h2" variant="headingLg">
                 🚀 Ready to See Your True Profits?
               </Text>
               <div style={{ margin: '2rem 0' }}>
-                <Text as="p" variant="bodyLg" color="base">
+                <Text as="p" variant="bodyLg">
                   Join hundreds of merchants tracking their profits with the most advanced platform available
                 </Text>
               </div>
@@ -559,7 +560,7 @@ export default function MarketingPage() {
                 </Button>
               </InlineStack>
               <div style={{ marginTop: '2rem' }}>
-                <Text as="p" variant="bodySm" color="base">
+                <Text as="p" variant="bodySm">
                   ⚡ 14-day free trial • No credit card required • Enterprise security
                 </Text>
               </div>
