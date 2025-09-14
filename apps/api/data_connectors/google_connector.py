@@ -4,7 +4,7 @@ Google Ads API connector for campaigns and conversions
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import requests
-from .base_connector import BaseConnector
+from data_connectors.base_connector import BaseConnector
 
 class GoogleConnector(BaseConnector):
     """Google Ads API connector"""

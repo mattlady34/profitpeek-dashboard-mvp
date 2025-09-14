@@ -4,12 +4,12 @@ Data integration service for managing multiple platform connections
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import logging
-from .data_connectors.shopify_connector import ShopifyConnector
-from .data_connectors.facebook_connector import FacebookConnector
-from .data_connectors.google_connector import GoogleConnector
-from .data_connectors.klaviyo_connector import KlaviyoConnector
-from .data_connectors.postscript_connector import PostscriptConnector
-from .profit_calculator import ProfitCalculator, OrderProfit, CampaignProfit
+from data_connectors.shopify_connector import ShopifyConnector
+from data_connectors.facebook_connector import FacebookConnector
+from data_connectors.google_connector import GoogleConnector
+from data_connectors.klaviyo_connector import KlaviyoConnector
+from data_connectors.postscript_connector import PostscriptConnector
+from profit_calculator import ProfitCalculator, OrderProfit, CampaignProfit
 
 logger = logging.getLogger(__name__)
 

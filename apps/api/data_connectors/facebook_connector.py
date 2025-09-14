@@ -4,7 +4,7 @@ Facebook Marketing API connector for ad campaigns and conversions
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import requests
-from .base_connector import BaseConnector
+from data_connectors.base_connector import BaseConnector
 
 class FacebookConnector(BaseConnector):
     """Facebook Marketing API connector"""

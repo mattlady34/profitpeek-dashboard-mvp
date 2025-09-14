@@ -4,7 +4,7 @@ Shopify API connector for orders, products, and customer data
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import requests
-from .base_connector import BaseConnector
+from data_connectors.base_connector import BaseConnector
 
 class ShopifyConnector(BaseConnector):
     """Shopify API connector"""

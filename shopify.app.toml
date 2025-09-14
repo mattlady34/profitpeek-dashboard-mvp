@@ -2,7 +2,7 @@
 
 name = "profitpeek"
 client_id = "your_shopify_api_key_here"
-application_url = "https://your-frontend-url.vercel.app"
+application_url = "https://profitpeek-dashboard-mvp.netlify.app"
 embedded = true
 
 [access_scopes]
@@ -11,8 +11,8 @@ scopes = "read_products,read_orders,read_customers,read_inventory,read_analytics
 
 [auth]
 redirect_urls = [
-  "https://your-frontend-url.vercel.app/auth/callback",
-  "https://your-backend-url.onrender.com/auth/callback"
+  "https://profitpeek-dashboard-mvp.netlify.app/auth/callback",
+  "https://profitpeek-api.onrender.com/auth/callback"
 ]
 
 [webhooks]

@@ -4,7 +4,7 @@ Postscript API connector for SMS campaigns and customer data
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import requests
-from .base_connector import BaseConnector
+from data_connectors.base_connector import BaseConnector
 
 class PostscriptConnector(BaseConnector):
     """Postscript API connector"""
