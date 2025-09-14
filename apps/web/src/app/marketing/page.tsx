@@ -20,19 +20,19 @@ import {
   ProgressBar,
   Spinner,
 } from '@shopify/polaris';
-import { trackDemoModeStarted, trackEvent } from '../../utils/analytics';
+// import { trackDemoModeStarted, trackEvent } from '../../utils/analytics';
 
 export default function MarketingPage() {
   const [email, setEmail] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   const handleDemoClick = () => {
-    trackDemoModeStarted();
+    // trackDemoModeStarted();
     window.location.href = '/dashboard?demo=1';
   };
 
   const handleGetStarted = () => {
-    trackEvent('get_started_clicked', { source: 'marketing_page' });
+    // trackEvent('get_started_clicked', { source: 'marketing_page' });
     const shop = prompt('Enter your Shopify store domain (e.g., your-store):');
     if (shop) {
       // Redirect to OAuth flow
@@ -41,7 +41,7 @@ export default function MarketingPage() {
   };
 
   const handleEmailSubmit = () => {
-    trackEvent('email_signup', { email: email });
+    // trackEvent('email_signup', { email: email });
     alert('Thanks for your interest! We\'ll be in touch soon.');
   };
 
