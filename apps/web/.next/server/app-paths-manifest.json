@@ -1,8 +1,12 @@
 {
-  "/dashboard/page": "app/dashboard/page.js",
-  "/page": "app/page.js",
+  "/_not-found": "app/_not-found.js",
   "/backfill/page": "app/backfill/page.js",
-  "/not-found": "app/not-found.js",
+  "/daily-digest/page": "app/daily-digest/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
   "/health/page": "app/health/page.js",
-  "/profit-analysis/page": "app/profit-analysis/page.js"
+  "/orders/page": "app/orders/page.js",
+  "/page": "app/page.js",
+  "/profit-analysis/page": "app/profit-analysis/page.js",
+  "/settings/page": "app/settings/page.js",
+  "/marketing/page": "app/marketing/page.js"
 }

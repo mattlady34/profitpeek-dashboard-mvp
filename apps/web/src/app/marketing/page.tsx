@@ -21,12 +21,10 @@ import {
   Spinner,
 } from '@shopify/polaris';
 import { trackDemoModeStarted, trackEvent } from '../../utils/analytics';
-import { useAuth } from '../../contexts/AuthContext';
 
 export default function MarketingPage() {
   const [email, setEmail] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-  const { login } = useAuth();
 
   const handleDemoClick = () => {
     trackDemoModeStarted();
@@ -37,7 +35,8 @@ export default function MarketingPage() {
     trackEvent('get_started_clicked', { source: 'marketing_page' });
     const shop = prompt('Enter your Shopify store domain (e.g., your-store):');
     if (shop) {
-      login(shop);
+      // Redirect to OAuth flow
+      window.location.href = `/auth/start?shop=${shop}`;
     }
   };
 
