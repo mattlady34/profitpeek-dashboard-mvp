@@ -9,40 +9,25 @@ import {
   InlineStack,
   Text,
   Button,
-  Banner,
-  TextField,
   Badge,
   Icon,
   Box,
   Divider,
   Collapsible,
-  List,
-  ProgressBar,
-  Spinner,
 } from '@shopify/polaris';
-// import { trackDemoModeStarted, trackEvent } from '../../utils/analytics';
 
 export default function MarketingPage() {
-  const [email, setEmail] = useState('');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   const handleDemoClick = () => {
-    // trackDemoModeStarted();
     window.location.href = '/dashboard?demo=1';
   };
 
   const handleGetStarted = () => {
-    // trackEvent('get_started_clicked', { source: 'marketing_page' });
     const shop = prompt('Enter your Shopify store domain (e.g., your-store):');
     if (shop) {
-      // Redirect to OAuth flow
       window.location.href = `/auth/start?shop=${shop}`;
     }
-  };
-
-  const handleEmailSubmit = () => {
-    // trackEvent('email_signup', { email: email });
-    alert('Thanks for your interest! We\'ll be in touch soon.');
   };
 
   const toggleFaq = (index: number) => {
@@ -52,12 +37,12 @@ export default function MarketingPage() {
   return (
     <Page>
       <Layout>
-        {/* Hero Section - Enhanced */}
+        {/* Hero Section */}
         <Layout.Section>
           <Card>
             <div style={{ 
               textAlign: 'center', 
-              padding: '6rem 2rem',
+              padding: '4rem 2rem',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
               borderRadius: '12px',
@@ -123,7 +108,7 @@ export default function MarketingPage() {
           </InlineStack>
         </Layout.Section>
 
-        {/* Enterprise Features Grid */}
+        {/* Features Section */}
         <Layout.Section>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <Text as="h2" variant="headingLg">
@@ -134,7 +119,6 @@ export default function MarketingPage() {
             </Text>
           </div>
           
-          {/* Row 1: Core Features */}
           <InlineStack gap="400" wrap={false}>
             <Box minWidth="350px">
               <Card>
@@ -179,166 +163,9 @@ export default function MarketingPage() {
               </Card>
             </Box>
           </InlineStack>
-
-          {/* Row 2: Advanced Features */}
-          <div style={{ marginTop: '2rem' }}>
-            <InlineStack gap="400" wrap={false}>
-              <Box minWidth="350px">
-                <Card>
-                  <BlockStack gap="300">
-                    <div style={{ textAlign: 'center' }}>
-                      <Text as="p" variant="headingLg">📊</Text>
-                      <Text as="h3" variant="headingMd">Advanced Analytics</Text>
-                    </div>
-                    <Text as="p" variant="bodyMd" tone="subdued">
-                      CPA, CPC, CPM analysis, revenue attribution, and cross-platform performance metrics.
-                    </Text>
-                    <Badge tone="info">Deep Analytics</Badge>
-                  </BlockStack>
-                </Card>
-              </Box>
-              <Box minWidth="350px">
-                <Card>
-                  <BlockStack gap="300">
-                    <div style={{ textAlign: 'center' }}>
-                      <Text as="p" variant="headingLg">🚨</Text>
-                      <Text as="h3" variant="headingMd">Smart Alerts</Text>
-                    </div>
-                    <Text as="p" variant="bodyMd" tone="subdued">
-                      Automated alerts for profit drops, cost spikes, ROAS declines, and optimization opportunities.
-                    </Text>
-                    <Badge tone="warning">Smart Monitoring</Badge>
-                  </BlockStack>
-                </Card>
-              </Box>
-              <Box minWidth="350px">
-                <Card>
-                  <BlockStack gap="300">
-                    <div style={{ textAlign: 'center' }}>
-                      <Text as="p" variant="headingLg">🔄</Text>
-                      <Text as="h3" variant="headingMd">Auto Sync</Text>
-                    </div>
-                    <Text as="p" variant="bodyMd" tone="subdued">
-                      Automatic data synchronization with retry logic, health monitoring, and error recovery.
-                    </Text>
-                    <Badge tone="success">Reliable Sync</Badge>
-                  </BlockStack>
-                </Card>
-              </Box>
-            </InlineStack>
-          </div>
         </Layout.Section>
 
-        {/* Profit Calculation Showcase */}
-        <Layout.Section>
-          <Card>
-            <div style={{ textAlign: 'center', padding: '3rem 2rem' }}>
-              <Text as="h2" variant="headingLg">
-                💰 See Your True Profit Calculation
-              </Text>
-              <div style={{ margin: '2rem 0', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
-                <div style={{ 
-                  background: '#f6f6f7', 
-                  padding: '2rem', 
-                  borderRadius: '8px',
-                  textAlign: 'left'
-                }}>
-                  <BlockStack gap="200">
-                    <InlineStack align="space-between">
-                      <Text as="p" variant="bodyMd">Total Revenue</Text>
-                      <Text as="p" variant="bodyMd" fontWeight="bold">$50,000</Text>
-                    </InlineStack>
-                    <Divider />
-                    <InlineStack align="space-between">
-                      <Text as="p" variant="bodyMd">COGS (40%)</Text>
-                      <Text as="p" variant="bodyMd" tone="critical">-$20,000</Text>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="p" variant="bodyMd">Processing Fees</Text>
-                      <Text as="p" variant="bodyMd" tone="critical">-$1,500</Text>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="p" variant="bodyMd">Shipping Costs</Text>
-                      <Text as="p" variant="bodyMd" tone="critical">-$2,000</Text>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="p" variant="bodyMd">Ad Spend</Text>
-                      <Text as="p" variant="bodyMd" tone="critical">-$8,000</Text>
-                    </InlineStack>
-                    <Divider />
-                    <InlineStack align="space-between">
-                      <Text as="p" variant="bodyMd" fontWeight="bold">Net Profit</Text>
-                      <Text as="p" variant="bodyMd" fontWeight="bold" tone="success">$18,500</Text>
-                    </InlineStack>
-                    <InlineStack align="space-between">
-                      <Text as="p" variant="bodyMd">Profit Margin</Text>
-                      <Text as="p" variant="bodyMd" fontWeight="bold" tone="success">37%</Text>
-                    </InlineStack>
-                  </BlockStack>
-                </div>
-              </div>
-              <Text as="p" variant="bodyMd" tone="subdued">
-                Track every cost across all platforms for accurate profit calculations
-              </Text>
-            </div>
-          </Card>
-        </Layout.Section>
-
-        {/* Social Proof - Enhanced */}
-        <Layout.Section>
-          <Card>
-            <div style={{ textAlign: 'center', padding: '3rem 2rem' }}>
-              <Text as="h2" variant="headingLg">
-                🏆 Trusted by Growing E-commerce Businesses
-              </Text>
-              <div style={{ margin: '2rem 0' }}>
-                <InlineStack gap="400" wrap={false} align="center">
-                  <Box minWidth="300px">
-                    <Card>
-                      <BlockStack gap="200" align="center">
-                        <Text as="p" variant="headingLg">⭐⭐⭐⭐⭐</Text>
-                        <Text as="p" variant="bodyLg">
-                          "Finally, I can see my true margins across all platforms! The real-time tracking is incredible."
-                        </Text>
-                        <Text as="p" variant="bodySm" tone="subdued">
-                          - Sarah Chen, Fashion Store ($2M ARR)
-                        </Text>
-                      </BlockStack>
-                    </Card>
-                  </Box>
-                  <Box minWidth="300px">
-                    <Card>
-                      <BlockStack gap="200" align="center">
-                        <Text as="p" variant="headingLg">⭐⭐⭐⭐⭐</Text>
-                        <Text as="p" variant="bodyLg">
-                          "The AI insights helped me optimize my ad spend and increase profits by 40%."
-                        </Text>
-                        <Text as="p" variant="bodySm" tone="subdued">
-                          - Mike Rodriguez, Dropshipping ($5M ARR)
-                        </Text>
-                      </BlockStack>
-                    </Card>
-                  </Box>
-                  <Box minWidth="300px">
-                    <Card>
-                      <BlockStack gap="200" align="center">
-                        <Text as="p" variant="headingLg">⭐⭐⭐⭐⭐</Text>
-                        <Text as="p" variant="bodyLg">
-                          "Enterprise-grade security and real-time alerts give me peace of mind."
-                        </Text>
-                        <Text as="p" variant="bodySm" tone="subdued">
-                          - Jennifer Kim, Electronics ($10M ARR)
-                        </Text>
-                      </BlockStack>
-                    </Card>
-                  </Box>
-                </InlineStack>
-              </div>
-            </div>
-          </Card>
-        </Layout.Section>
-
-        {/* Pricing - Enhanced */}
+        {/* Pricing */}
         <Layout.Section>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <Text as="h2" variant="headingLg">
@@ -472,7 +299,7 @@ export default function MarketingPage() {
           </div>
         </Layout.Section>
 
-        {/* FAQ - Enhanced */}
+        {/* FAQ */}
         <Layout.Section>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <Text as="h2" variant="headingLg">
@@ -492,18 +319,6 @@ export default function MarketingPage() {
               {
                 question: "What makes ProfitPeek different from other profit tracking tools?",
                 answer: "ProfitPeek is the only platform that connects ALL your marketing channels (Shopify, Meta Ads, Google Ads, Klaviyo, Postscript) with real-time WebSocket updates, AI-powered insights, trend forecasting, smart alerts, and enterprise-grade security - all in one unified dashboard."
-              },
-              {
-                question: "Can I customize the profit calculations for my business?",
-                answer: "Absolutely! You can adjust COGS percentages, processing fees, shipping costs, and other settings to match your specific business model. We also support custom cost categories and automated cost tracking."
-              },
-              {
-                question: "Do you offer real-time tracking and alerts?",
-                answer: "Yes! ProfitPeek provides real-time profit tracking with WebSocket connections, live dashboard updates, smart alerts for profit drops and cost spikes, and automated notifications for optimization opportunities."
-              },
-              {
-                question: "What platforms can I connect to ProfitPeek?",
-                answer: "Currently, we support Shopify (e-commerce), Meta Ads (Facebook/Instagram), Google Ads, Klaviyo (email marketing), and Postscript (SMS marketing). We're constantly adding new platform integrations based on user demand."
               }
             ].map((faq, index) => (
               <Card key={index}>
@@ -532,7 +347,7 @@ export default function MarketingPage() {
           </BlockStack>
         </Layout.Section>
 
-        {/* CTA Section - Enhanced */}
+        {/* CTA Section */}
         <Layout.Section>
           <Card>
             <div style={{ 
