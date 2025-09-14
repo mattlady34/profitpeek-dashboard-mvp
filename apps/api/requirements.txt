@@ -3,3 +3,6 @@ Flask-CORS==4.0.0
 requests==2.31.0
 python-dotenv==1.0.0
 gunicorn==21.2.0
+facebook-business==18.0.0
+google-ads==23.0.0
+klaviyo-api==2.0.0

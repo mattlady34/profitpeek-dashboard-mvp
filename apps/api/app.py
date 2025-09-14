@@ -8,6 +8,7 @@ import secrets
 import json
 from urllib.parse import urlencode
 from dotenv import load_dotenv
+from data_integration_service import DataIntegrationService
 
 # Load environment variables
 load_dotenv()
@@ -17,6 +18,9 @@ app.secret_key = os.getenv('JWT_SECRET', 'your_secret_key_here')
 
 # Enable CORS for production
 CORS(app, supports_credentials=True)
+
+# Initialize data integration service
+data_service = DataIntegrationService()
 
 # Shopify OAuth
 SHOPIFY_API_KEY = os.getenv('SHOPIFY_API_KEY', 'demo_api_key_12345')
@@ -171,6 +175,144 @@ def auth_logout():
     """Logout user"""
     session.clear()
     return jsonify({"message": "Logged out successfully"})
+
+# Data Integration Endpoints
+@app.route('/api/integrations/status')
+def integrations_status():
+    """Get status of all integrations"""
+    try:
+        status = data_service.get_connection_status()
+        available = data_service.get_available_platforms()
+        return jsonify({
+            "status": status,
+            "available_platforms": available
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/integrations/shopify', methods=['POST'])
+def add_shopify_integration():
+    """Add Shopify integration"""
+    try:
+        data = request.get_json()
+        shop_domain = data.get('shop_domain')
+        access_token = data.get('access_token')
+        
+        if not shop_domain or not access_token:
+            return jsonify({"error": "shop_domain and access_token required"}), 400
+        
+        success = data_service.add_shopify_connection(shop_domain, access_token)
+        if success:
+            return jsonify({"message": "Shopify integration added successfully"})
+        else:
+            return jsonify({"error": "Failed to add Shopify integration"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/integrations/facebook', methods=['POST'])
+def add_facebook_integration():
+    """Add Facebook integration"""
+    try:
+        data = request.get_json()
+        access_token = data.get('access_token')
+        ad_account_id = data.get('ad_account_id')
+        
+        if not access_token or not ad_account_id:
+            return jsonify({"error": "access_token and ad_account_id required"}), 400
+        
+        success = data_service.add_facebook_connection(access_token, ad_account_id)
+        if success:
+            return jsonify({"message": "Facebook integration added successfully"})
+        else:
+            return jsonify({"error": "Failed to add Facebook integration"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/integrations/google', methods=['POST'])
+def add_google_integration():
+    """Add Google Ads integration"""
+    try:
+        data = request.get_json()
+        access_token = data.get('access_token')
+        customer_id = data.get('customer_id')
+        developer_token = data.get('developer_token')
+        
+        if not all([access_token, customer_id, developer_token]):
+            return jsonify({"error": "access_token, customer_id, and developer_token required"}), 400
+        
+        success = data_service.add_google_connection(access_token, customer_id, developer_token)
+        if success:
+            return jsonify({"message": "Google Ads integration added successfully"})
+        else:
+            return jsonify({"error": "Failed to add Google Ads integration"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/integrations/klaviyo', methods=['POST'])
+def add_klaviyo_integration():
+    """Add Klaviyo integration"""
+    try:
+        data = request.get_json()
+        api_key = data.get('api_key')
+        
+        if not api_key:
+            return jsonify({"error": "api_key required"}), 400
+        
+        success = data_service.add_klaviyo_connection(api_key)
+        if success:
+            return jsonify({"message": "Klaviyo integration added successfully"})
+        else:
+            return jsonify({"error": "Failed to add Klaviyo integration"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/integrations/postscript', methods=['POST'])
+def add_postscript_integration():
+    """Add Postscript integration"""
+    try:
+        data = request.get_json()
+        api_key = data.get('api_key')
+        
+        if not api_key:
+            return jsonify({"error": "api_key required"}), 400
+        
+        success = data_service.add_postscript_connection(api_key)
+        if success:
+            return jsonify({"message": "Postscript integration added successfully"})
+        else:
+            return jsonify({"error": "Failed to add Postscript integration"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/sync', methods=['POST'])
+def sync_data():
+    """Sync data from all connected platforms"""
+    try:
+        data = request.get_json()
+        start_date = data.get('start_date', '2024-01-01')
+        end_date = data.get('end_date', '2024-01-31')
+        
+        from datetime import datetime
+        start_dt = datetime.fromisoformat(start_date)
+        end_dt = datetime.fromisoformat(end_date)
+        
+        sync_result = data_service.sync_all_data(start_dt, end_dt)
+        return jsonify(sync_result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/profits', methods=['POST'])
+def calculate_profits():
+    """Calculate profits for synced data"""
+    try:
+        data = request.get_json()
+        orders = data.get('orders', [])
+        campaigns = data.get('campaigns', [])
+        
+        profit_result = data_service.calculate_profits(orders, campaigns)
+        return jsonify(profit_result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def get_shopify_headers():
     """Get headers for Shopify API requests"""
